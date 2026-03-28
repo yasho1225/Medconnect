@@ -1,0 +1,1594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MedConnect</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    html {
+      color-scheme: dark;
+    }
+
+    :root {
+      --bg-deep: #020617;
+      --bg-mid: #0f172a;
+      --accent: #38bdf8;
+      --accent-dim: #0ea5e9;
+      --accent-glow: rgba(56, 189, 248, 0.45);
+      --blue-deep: #1e40af;
+      --blue-mid: #3b82f6;
+      --blue-light: #7dd3fc;
+      --glass: rgba(15, 40, 80, 0.65);
+      --glass-border: rgba(147, 197, 253, 0.2);
+      --text: #f8fafc;
+      --text-muted: #93c5fd;
+      --radius-lg: 22px;
+      --radius-md: 14px;
+      --font: 'Outfit', system-ui, sans-serif;
+      --blue-spectrum: linear-gradient(90deg, #0ea5e9, #3b82f6, #2563eb, #60a5fa, #38bdf8);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: var(--font);
+      background: linear-gradient(145deg, #020617 0%, #0c4a6e 35%, #1e3a8a 65%, #0f172a 100%);
+      background-size: 400% 400%;
+      animation: body-shift 22s ease infinite;
+      color: var(--text);
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow-x: hidden;
+      padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+    }
+
+    @keyframes body-shift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: -50%;
+      background:
+        radial-gradient(ellipse 70% 55% at 15% 25%, rgba(56, 189, 248, 0.35), transparent 55%),
+        radial-gradient(ellipse 65% 50% at 85% 20%, rgba(37, 99, 235, 0.4), transparent 50%),
+        radial-gradient(ellipse 55% 45% at 75% 75%, rgba(14, 165, 233, 0.3), transparent 50%),
+        radial-gradient(ellipse 50% 40% at 10% 80%, rgba(96, 165, 250, 0.35), transparent 45%),
+        radial-gradient(ellipse 45% 35% at 50% 50%, rgba(59, 130, 246, 0.12), transparent 50%);
+      animation: bg-drift 20s ease-in-out infinite alternate;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @keyframes bg-drift {
+      from { transform: translate(0, 0) rotate(0deg) scale(1); }
+      to { transform: translate(3%, -4%) rotate(3deg) scale(1.08); }
+    }
+
+    .kiosk {
+      width: 392px;
+      max-width: calc(100vw - 24px);
+      height: 652px;
+      max-height: calc(100vh - 24px);
+      position: relative;
+      z-index: 1;
+      padding: 4px;
+      border-radius: calc(var(--radius-lg) + 4px);
+      background: linear-gradient(125deg,
+        rgba(14, 165, 233, 0.85) 0%,
+        rgba(37, 99, 235, 0.75) 25%,
+        rgba(59, 130, 246, 0.7) 50%,
+        rgba(56, 189, 248, 0.65) 75%,
+        rgba(30, 64, 175, 0.8) 100%);
+      background-size: 300% 300%;
+      animation: kiosk-glow 10s ease infinite;
+      box-shadow:
+        0 0 0 1px rgba(147, 197, 253, 0.2) inset,
+        0 28px 90px rgba(0, 0, 0, 0.55),
+        0 0 100px rgba(56, 189, 248, 0.3),
+        0 0 120px rgba(37, 99, 235, 0.25);
+    }
+
+    @keyframes kiosk-glow {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    .kiosk-inner {
+      height: 100%;
+      border-radius: var(--radius-lg);
+      background: linear-gradient(175deg, #0c1929 0%, #0f172a 40%, #172554 100%);
+      padding: 12px 14px 14px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.1);
+    }
+
+    .kiosk-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 6px 12px;
+      flex-shrink: 0;
+    }
+
+    .kiosk-dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .kiosk-dots span {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #334155;
+      box-shadow: 0 0 8px rgba(0,0,0,0.4);
+    }
+
+    .kiosk-dots span:nth-child(1) { background: #38bdf8; box-shadow: 0 0 10px rgba(56, 189, 248, 0.6); }
+    .kiosk-dots span:nth-child(2) { background: #3b82f6; box-shadow: 0 0 10px rgba(59, 130, 246, 0.5); }
+    .kiosk-dots span:nth-child(3) { background: #60a5fa; box-shadow: 0 0 10px rgba(96, 165, 250, 0.5); }
+
+    .kiosk-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .kiosk-label span {
+      background: linear-gradient(90deg, #7dd3fc, #60a5fa, #3b82f6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .screen {
+      flex: 1;
+      min-height: 0;
+      background:
+        radial-gradient(ellipse 90% 50% at 100% 0%, rgba(56, 189, 248, 0.12), transparent 55%),
+        radial-gradient(ellipse 70% 50% at 0% 100%, rgba(37, 99, 235, 0.15), transparent 50%),
+        radial-gradient(ellipse 50% 40% at 50% 50%, rgba(96, 165, 250, 0.08), transparent 60%),
+        linear-gradient(165deg, #020617 0%, #0f172a 45%, #172554 100%);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      overflow-y: auto;
+      font-size: 14px;
+      line-height: 1.5;
+      border: 1px solid rgba(59, 130, 246, 0.25);
+      box-shadow:
+        inset 0 0 50px rgba(0, 0, 0, 0.35),
+        inset 0 1px 0 rgba(147, 197, 253, 0.08);
+    }
+
+    .screen::-webkit-scrollbar { width: 8px; }
+    .screen::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.5); border-radius: 10px; }
+    .screen::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #38bdf8, #3b82f6, #1d4ed8);
+      border-radius: 10px;
+    }
+
+    .screen h2 {
+      margin: 0 0 12px;
+      font-size: 1.3rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      background: linear-gradient(100deg, #e0f2fe, #7dd3fc, #93c5fd);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .screen h3 {
+      margin: 14px 0 8px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      background: linear-gradient(90deg, #38bdf8, #60a5fa, #3b82f6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    button {
+      width: 100%;
+      margin: 8px 0;
+      padding: 14px 16px;
+      min-height: 48px;
+      border: none;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #0ea5e9, #3b82f6, #2563eb);
+      background-size: 200% 200%;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: var(--font);
+      cursor: pointer;
+      box-shadow: 0 6px 28px rgba(37, 99, 235, 0.4), 0 0 20px rgba(56, 189, 248, 0.25);
+      transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease, background-position 0.4s ease;
+    }
+
+    button:hover {
+      transform: translateY(-2px) scale(1.01);
+      filter: brightness(1.06) saturate(1.05);
+      background-position: 100% 50%;
+      box-shadow: 0 10px 36px rgba(59, 130, 246, 0.45), 0 0 32px rgba(56, 189, 248, 0.3);
+    }
+
+    button:active {
+      transform: translateY(0) scale(0.99);
+    }
+
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible,
+    textarea:focus-visible {
+      outline: 2px solid #7dd3fc;
+      outline-offset: 3px;
+    }
+
+    .btn-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .btn-stack button {
+      margin: 0;
+    }
+
+    button.btn-rainbow {
+      background: var(--blue-spectrum);
+      background-size: 220% auto;
+      color: #fff;
+      text-shadow: 0 1px 4px rgba(15, 23, 42, 0.35);
+    }
+
+    button.btn-rainbow:hover {
+      background-position: 100% 50%;
+      filter: brightness(1.08);
+    }
+
+    button.btn-cyan {
+      background: linear-gradient(135deg, #22d3ee, #0284c7);
+      color: #fff;
+      box-shadow: 0 6px 28px rgba(14, 165, 233, 0.45);
+    }
+
+    button.btn-cyan:hover {
+      box-shadow: 0 10px 36px rgba(2, 132, 199, 0.5);
+    }
+
+    button.btn-amber {
+      background: linear-gradient(135deg, #60a5fa, #2563eb);
+      color: #fff;
+      box-shadow: 0 6px 28px rgba(37, 99, 235, 0.45);
+    }
+
+    button.btn-amber:hover {
+      box-shadow: 0 10px 36px rgba(37, 99, 235, 0.55);
+    }
+
+    button.btn-bp { background: linear-gradient(135deg, #1d4ed8, #1e40af); color: #fff; box-shadow: 0 6px 24px rgba(29, 78, 216, 0.5); }
+    button.btn-hr { background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #fff; box-shadow: 0 6px 24px rgba(37, 99, 235, 0.45); }
+    button.btn-bmi { background: linear-gradient(135deg, #3b82f6, #2563eb); color: #fff; box-shadow: 0 6px 24px rgba(59, 130, 246, 0.45); }
+    button.btn-spo2 { background: linear-gradient(135deg, #06b6d4, #0891b2); color: #fff; box-shadow: 0 6px 24px rgba(6, 182, 212, 0.45); }
+    button.btn-rhythm { background: linear-gradient(135deg, #6366f1, #4338ca); color: #fff; box-shadow: 0 6px 24px rgba(67, 56, 202, 0.45); }
+    button.btn-glu { background: linear-gradient(135deg, #38bdf8, #0ea5e9); color: #0c4a6e; box-shadow: 0 6px 24px rgba(14, 165, 233, 0.45); }
+    button.btn-chol { background: linear-gradient(135deg, #93c5fd, #3b82f6); color: #1e3a8a; box-shadow: 0 6px 24px rgba(59, 130, 246, 0.4); }
+
+    button.secondary {
+      background: linear-gradient(135deg, rgba(30, 58, 138, 0.5), rgba(15, 23, 42, 0.65));
+      color: #bfdbfe;
+      border: 1px solid rgba(96, 165, 250, 0.4);
+      box-shadow: 0 4px 20px rgba(30, 64, 175, 0.2);
+    }
+
+    button.secondary:hover {
+      background: linear-gradient(135deg, rgba(37, 99, 235, 0.45), rgba(30, 58, 138, 0.55));
+      border-color: rgba(147, 197, 253, 0.55);
+      box-shadow: 0 8px 28px rgba(37, 99, 235, 0.35);
+    }
+
+    button.danger {
+      background: linear-gradient(135deg, #f87171, #dc2626);
+      color: #fff;
+      box-shadow: 0 6px 24px rgba(248, 113, 113, 0.4);
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 12px 14px;
+      margin: 6px 0;
+      border-radius: 12px;
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      background: rgba(15, 23, 42, 0.88);
+      color: var(--text);
+      font-size: 14px;
+      font-family: var(--font);
+      transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+    }
+
+    select {
+      appearance: none;
+      cursor: pointer;
+      padding-right: 42px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%2393c5fd' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+    }
+
+    textarea {
+      min-height: 64px;
+      resize: vertical;
+      line-height: 1.45;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.35), 0 0 20px rgba(56, 189, 248, 0.2);
+    }
+
+    input::placeholder, textarea::placeholder { color: #64748b; }
+
+    .muted {
+      color: var(--text-muted);
+      font-size: 12px;
+      margin: 8px 0;
+      line-height: 1.45;
+    }
+
+    .screen .muted {
+      color: #93c5fd;
+    }
+
+    .card {
+      position: relative;
+      background: linear-gradient(145deg, rgba(15, 40, 80, 0.55) 0%, rgba(15, 23, 42, 0.92) 50%, rgba(23, 37, 84, 0.45) 100%);
+      border-radius: var(--radius-md);
+      padding: 14px 14px 14px 18px;
+      margin: 10px 0;
+      border: 1px solid rgba(59, 130, 246, 0.28);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3), 0 0 24px rgba(37, 99, 235, 0.12);
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 10px;
+      bottom: 10px;
+      width: 5px;
+      border-radius: 0 6px 6px 0;
+      background: linear-gradient(180deg, #38bdf8, #3b82f6, #2563eb, #1d4ed8, #60a5fa);
+      box-shadow: 0 0 14px rgba(56, 189, 248, 0.5);
+    }
+
+    .card p {
+      margin: 0 0 10px;
+    }
+
+    .card p:last-child {
+      margin-bottom: 0;
+    }
+
+    .value-big {
+      font-size: 1.6rem;
+      font-weight: 800;
+      background: linear-gradient(100deg, #e0f2fe, #7dd3fc, #60a5fa, #93c5fd);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      margin-top: 8px;
+      letter-spacing: 0.03em;
+    }
+
+    .tag.ok { background: linear-gradient(135deg, rgba(56, 189, 248, 0.35), rgba(14, 165, 233, 0.25)); color: #e0f2fe; border: 1px solid rgba(125, 211, 252, 0.45); }
+    .tag.warn { background: linear-gradient(135deg, rgba(96, 165, 250, 0.35), rgba(59, 130, 246, 0.25)); color: #dbeafe; border: 1px solid rgba(147, 197, 253, 0.5); }
+    .tag.bad { background: linear-gradient(135deg, rgba(248, 113, 113, 0.35), rgba(220, 38, 38, 0.3)); color: #fecaca; border: 1px solid rgba(252, 165, 165, 0.45); }
+
+    .scan-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 280px;
+      text-align: center;
+      padding: 20px 0;
+    }
+
+    .scan-ring {
+      width: 92px;
+      height: 92px;
+      border-radius: 50%;
+      border: 4px solid transparent;
+      background:
+        linear-gradient(#0a1628, #0a1628) padding-box,
+        conic-gradient(from 0deg, #38bdf8, #3b82f6, #2563eb, #1d4ed8, #60a5fa, #0ea5e9, #38bdf8) border-box;
+      animation: scan-spin 1.1s linear infinite;
+      box-shadow: 0 0 48px rgba(56, 189, 248, 0.45), 0 0 64px rgba(37, 99, 235, 0.3);
+    }
+
+    @keyframes scan-spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .scan-status {
+      margin: 24px 0 10px;
+      font-size: 1.15rem;
+      font-weight: 700;
+      background: linear-gradient(90deg, #7dd3fc, #60a5fa, #38bdf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: scan-pulse 1.2s ease-in-out infinite;
+    }
+
+    @keyframes scan-pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .scan-bar {
+      width: 100%;
+      max-width: 240px;
+      height: 6px;
+      background: rgba(30, 41, 59, 0.8);
+      border-radius: 999px;
+      margin-top: 24px;
+      overflow: hidden;
+      border: 1px solid rgba(148, 163, 184, 0.1);
+    }
+
+    .scan-bar-fill {
+      height: 100%;
+      width: 0;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #0ea5e9, #3b82f6, #2563eb, #60a5fa, #38bdf8);
+      animation: scan-fill 5s linear forwards;
+      box-shadow: 0 0 18px rgba(56, 189, 248, 0.55), 0 0 24px rgba(37, 99, 235, 0.35);
+    }
+
+    @keyframes scan-fill {
+      to { width: 100%; }
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(160deg, rgba(15, 23, 42, 0.92), rgba(30, 58, 138, 0.75), rgba(15, 23, 42, 0.9));
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      z-index: 100;
+      padding: max(20px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      animation: overlay-in 0.42s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .overlay .login-box {
+      margin-top: auto;
+      margin-bottom: auto;
+      flex-shrink: 0;
+    }
+
+    @keyframes overlay-in {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes overlay-rise {
+      from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.98);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .overlay:not(.hidden) .login-box {
+      animation: overlay-rise 0.45s cubic-bezier(0.22, 1, 0.36, 1) 0.05s both;
+    }
+
+    .overlay.hidden { display: none; animation: none; }
+
+    .overlay.goodbye {
+      z-index: 110;
+      background: linear-gradient(165deg, rgba(15, 23, 42, 0.95), rgba(30, 58, 138, 0.55), rgba(15, 23, 42, 0.95));
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+
+    .overlay.mental {
+      z-index: 108;
+      background: linear-gradient(165deg, rgba(30, 27, 75, 0.92), rgba(49, 46, 129, 0.55), rgba(15, 23, 42, 0.92));
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+
+    .login-box.mental-check-box {
+      max-height: min(85dvh, 600px);
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 24px 22px 26px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(56, 189, 248, 0.45) rgba(15, 23, 42, 0.5);
+    }
+
+    .mental-check-box::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .mental-check-box::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.45);
+      border-radius: 10px;
+    }
+
+    .mental-check-box::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #818cf8, #38bdf8);
+      border-radius: 10px;
+    }
+
+    .mental-check-box h2 {
+      font-size: 1.22rem;
+      text-align: center;
+      margin-top: 4px;
+    }
+
+    .mh-section-hint {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(165, 180, 252, 0.85);
+      margin: 0 0 8px;
+      padding: 0;
+      border: none;
+    }
+
+    .mh-section-hint--divider {
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(129, 140, 248, 0.28);
+    }
+
+    .mental-check-box select {
+      margin-top: 2px;
+      margin-bottom: 4px;
+    }
+
+    .mental-check-box textarea {
+      margin-top: 2px;
+      margin-bottom: 6px;
+    }
+
+    .mental-check-box .err {
+      margin-top: 8px;
+    }
+
+    .mh-soft-icon {
+      width: 56px;
+      height: 56px;
+      margin: 0 auto 14px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #a78bfa, #6366f1, #38bdf8);
+      border: 2px solid rgba(196, 181, 253, 0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 12px 36px rgba(99, 102, 241, 0.35), 0 0 28px rgba(56, 189, 248, 0.25);
+    }
+
+    .mh-soft-icon svg {
+      width: 28px;
+      height: 28px;
+      color: #fff;
+      filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2));
+    }
+
+    .mh-lead {
+      text-align: center;
+      color: #c7d2fe;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin: 0 0 18px;
+    }
+
+    .mh-lead em {
+      font-style: normal;
+      font-weight: 600;
+      color: #e9d5ff;
+    }
+
+    .mh-q {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #a5b4fc;
+      margin: 10px 0 2px;
+    }
+
+    .login-box {
+      width: 100%;
+      max-width: 380px;
+      background: linear-gradient(165deg, rgba(23, 37, 84, 0.78), rgba(15, 23, 42, 0.9));
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-radius: var(--radius-lg);
+      padding: 28px 24px 26px;
+      box-shadow:
+        0 28px 72px rgba(0, 0, 0, 0.55),
+        0 0 0 1px rgba(147, 197, 253, 0.12) inset,
+        0 0 80px rgba(37, 99, 235, 0.25),
+        0 0 100px rgba(56, 189, 248, 0.15);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .login-box::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #0ea5e9, #38bdf8, #3b82f6, #2563eb, #60a5fa, #22d3ee);
+      background-size: 200% 100%;
+      animation: stripe-move 4s linear infinite;
+    }
+
+    @keyframes stripe-move {
+      to { background-position: 200% 0; }
+    }
+
+    .login-box h2 {
+      margin: 8px 0 6px;
+      font-size: 1.45rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      background: linear-gradient(90deg, #e0f2fe, #93c5fd, #7dd3fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .login-box > h2 {
+      text-align: center;
+    }
+
+    .login-box > .muted {
+      text-align: center;
+      margin-top: 0;
+    }
+
+    .welcome-logo {
+      width: 82px;
+      height: 82px;
+      margin: 0 auto 18px;
+      border-radius: 24px;
+      border: 3px solid transparent;
+      background:
+        linear-gradient(155deg, rgba(15, 23, 42, 0.95), rgba(30, 58, 138, 0.85)) padding-box,
+        linear-gradient(135deg, #38bdf8, #3b82f6, #2563eb, #0ea5e9, #60a5fa) border-box;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 16px 48px rgba(37, 99, 235, 0.4), 0 0 36px rgba(56, 189, 248, 0.3);
+    }
+
+    .welcome-logo svg {
+      width: 42px;
+      height: 42px;
+      color: #7dd3fc;
+      filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.65));
+    }
+
+    .goodbye-icon {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 18px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #38bdf8, #3b82f6, #2563eb);
+      border: 3px solid rgba(147, 197, 253, 0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: pop-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 14px 44px rgba(37, 99, 235, 0.45), 0 0 32px rgba(56, 189, 248, 0.35);
+    }
+
+    @keyframes pop-in {
+      from { transform: scale(0.5); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .goodbye-icon svg {
+      width: 30px;
+      height: 30px;
+      color: #fff;
+      filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2));
+    }
+
+    .goodbye-text {
+      margin: 0 auto 22px;
+      max-width: 28ch;
+      font-size: 1.08rem;
+      line-height: 1.55;
+      color: #e2e8f0;
+      text-align: center;
+    }
+
+    .goodbye-text strong {
+      background: linear-gradient(90deg, #7dd3fc, #60a5fa, #93c5fd);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 700;
+    }
+
+    .err {
+      color: #fca5a5;
+      font-size: 13px;
+      margin: 6px 0;
+      min-height: 1.2em;
+    }
+
+    .disclaimer {
+      font-size: 10px;
+      color: #93c5fd;
+      margin-top: 14px;
+      border-top: 1px solid rgba(59, 130, 246, 0.3);
+      padding-top: 12px;
+      line-height: 1.45;
+    }
+
+    .welcome-lead {
+      margin: 0 0 22px;
+      font-size: 0.98rem;
+      line-height: 1.55;
+      color: #bfdbfe;
+      text-align: center;
+    }
+
+    .welcome-brand {
+      font-size: 1.75rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      text-align: center;
+      margin: 0 0 6px;
+      background: linear-gradient(95deg, #e0f2fe, #7dd3fc, #60a5fa, #93c5fd);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .welcome-sub {
+      text-align: center;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.28em;
+      background: linear-gradient(90deg, #38bdf8, #3b82f6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin: 0 0 8px;
+    }
+
+    .pill-line {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      font-size: 12px;
+      color: #bfdbfe;
+      margin-bottom: 14px;
+      padding: 10px 16px;
+      background: linear-gradient(135deg, rgba(37, 99, 235, 0.4), rgba(30, 58, 138, 0.35));
+      border-radius: 999px;
+      border: 1px solid rgba(96, 165, 250, 0.45);
+      box-shadow: 0 4px 20px rgba(37, 99, 235, 0.25);
+    }
+
+    .pill-line strong {
+      color: #e0f2fe;
+      font-weight: 700;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      body,
+      .kiosk,
+      body::before,
+      .login-box::before,
+      .scan-ring,
+      .scan-status,
+      .scan-bar-fill,
+      .goodbye-icon {
+        animation: none !important;
+      }
+
+      .overlay:not(.hidden) .login-box {
+        animation: none !important;
+      }
+
+      button {
+        transition: none;
+      }
+
+      button:hover {
+        transform: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="overlay" id="welcomeOverlay">
+  <div class="login-box">
+    <div class="welcome-logo" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4.8 12.8c1.2 2.4 3.4 4 5.9 4.2 2.6.2 5.1-1 6.7-3.2"/>
+        <path d="M19.2 11.2c-1.2-2.4-3.4-4-5.9-4.2-2.6-.2-5.1 1-6.7 3.2"/>
+        <circle cx="12" cy="12" r="9"/>
+      </svg>
+    </div>
+    <p class="welcome-brand">Welcome to the MedConnect Kiosk</p>
+    <p class="welcome-lead">Your quick check-in hub — view your record, run vitals, and stay in sync with care.</p>
+    <button type="button" class="btn-rainbow" id="btnWelcomeLogin">Log in</button>
+    <button type="button" class="secondary" id="btnWelcomeSignup">Sign up</button>
+  </div>
+</div>
+
+<div class="overlay hidden" id="loginOverlay">
+  <div class="login-box">
+    <h2>Patient login</h2>
+    <p class="muted">Sign in to view your record and vitals.</p>
+    <input type="text" id="loginUser" placeholder="Username" autocomplete="username">
+    <input type="password" id="loginPass" placeholder="Password" autocomplete="current-password">
+    <p class="err" id="loginErr"></p>
+    <button type="button" class="btn-rainbow" id="btnLogin">Log in</button>
+    <button type="button" class="secondary" id="btnLoginBack">Back</button>
+  </div>
+</div>
+
+<div class="overlay hidden" id="signupOverlay">
+  <div class="login-box">
+    <h2>Create account</h2>
+    <p class="muted">Register to use MedConnect. You can complete your profile after signing in.</p>
+    <input type="text" id="signupName" placeholder="Full name" autocomplete="name">
+    <input type="text" id="signupUser" placeholder="Username" autocomplete="username">
+    <input type="password" id="signupPass" placeholder="Password" autocomplete="new-password">
+    <input type="number" id="signupAge" placeholder="Age" min="1" max="120">
+    <p class="err" id="signupErr"></p>
+    <button type="button" class="btn-rainbow" id="btnSignupSubmit">Create account</button>
+    <button type="button" class="secondary" id="btnSignupBack">Back</button>
+    <p class="disclaimer">Demo registration stored on this device only.</p>
+  </div>
+</div>
+
+<div class="kiosk">
+  <div class="kiosk-inner">
+    <div class="kiosk-top">
+      <div class="kiosk-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+      <div class="kiosk-label"><span>Med</span>Connect</div>
+    </div>
+    <div class="screen" id="screen"></div>
+  </div>
+</div>
+
+<div class="overlay mental hidden" id="mentalHealthOverlay">
+  <div class="login-box mental-check-box">
+    <div class="mh-soft-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+      </svg>
+    </div>
+    <h2>Before you go</h2>
+    <p class="mh-lead">Answer these <em>5 quick questions</em> before you leave — for your mental health. Take your time; there are no wrong answers, and this moment is just for you.</p>
+    <p class="mh-section-hint" role="presentation">Quick check</p>
+    <label class="mh-q" for="mh_mood">1. How are you feeling right now?</label>
+    <select id="mh_mood" aria-label="How are you feeling right now?">
+      <option value="">Choose one</option>
+      <option value="great">Wonderful</option>
+      <option value="good">Pretty good</option>
+      <option value="okay">Okay</option>
+      <option value="low">A bit low</option>
+      <option value="rough">Rough — I could use support</option>
+    </select>
+    <label class="mh-q" for="mh_rested">2. How rested do you feel?</label>
+    <select id="mh_rested" aria-label="How rested do you feel?">
+      <option value="">Choose one</option>
+      <option value="well">Fairly rested</option>
+      <option value="mixed">Somewhere in the middle</option>
+      <option value="tired">Pretty tired</option>
+    </select>
+    <label class="mh-q" for="mh_fuel">3. Have you had food or water recently?</label>
+    <select id="mh_fuel" aria-label="Have you had food or water recently?">
+      <option value="">Choose one</option>
+      <option value="yes">Yes, both</option>
+      <option value="some">A little</option>
+      <option value="not-yet">Not yet — I'll try to soon</option>
+    </select>
+    <p class="mh-section-hint mh-section-hint--divider" role="presentation">Reflection (optional)</p>
+    <label class="mh-q" for="mh_onmind">4. Anything on your mind you'd like to remember to talk about?</label>
+    <textarea id="mh_onmind" placeholder="Optional — a word or two is enough" rows="2" maxlength="280" aria-label="Anything on your mind"></textarea>
+    <label class="mh-q" for="mh_kind">5. One kind thing you did for yourself today?</label>
+    <textarea id="mh_kind" placeholder="Optional — celebrate the small stuff" rows="2" maxlength="280" aria-label="One kind thing for yourself"></textarea>
+    <p class="err" id="mhErr"></p>
+    <button type="button" class="btn-rainbow" id="btnMhFinish">Finish &amp; log out</button>
+    <button type="button" class="secondary" id="btnMhCancel">Stay signed in</button>
+  </div>
+</div>
+
+<div class="overlay goodbye hidden" id="goodbyeOverlay">
+  <div class="login-box">
+    <div class="goodbye-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 6L9 17l-5-5"/>
+      </svg>
+    </div>
+    <p class="goodbye-text"><strong>Thank you</strong> for using MedConnect. Your results will sync to your mobile app.</p>
+    <button type="button" class="btn-rainbow" id="btnGoodbyeOk">OK</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  const PATIENTS = [
+    { user: 'santoshbhukya', pass: 'santosh22@@', name: 'Santosh Bhukya', age: 19, heightCm: 68 * 2.54, weightKg: 145 / 2.2046226218, mrn: 'MRN-9001', phone: '(404) 555-0199', allergies: 'None', notes: 'Kiosk check-in' }
+  ];
+
+  const SESSION_KEY = 'medkiosk_user';
+  const REG_KEY = 'medkiosk_registered';
+  const VISIT_HISTORY_KEY = 'medkiosk_visit_history';
+  const SESSION_VITALS_KEY = 'medkiosk_session_vitals';
+  const SESSION_START_KEY = 'medkiosk_session_start';
+  const SCAN_MS = 5000;
+
+  const screen = document.getElementById('screen');
+  const welcomeOverlay = document.getElementById('welcomeOverlay');
+  const loginOverlay = document.getElementById('loginOverlay');
+  const signupOverlay = document.getElementById('signupOverlay');
+  const goodbyeOverlay = document.getElementById('goodbyeOverlay');
+  const mentalHealthOverlay = document.getElementById('mentalHealthOverlay');
+  const loginErr = document.getElementById('loginErr');
+  const signupErr = document.getElementById('signupErr');
+  let goodbyeTimer = null;
+
+  function getRegisteredPatients() {
+    try {
+      const raw = localStorage.getItem(REG_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function getAllPatients() {
+    return PATIENTS.concat(getRegisteredPatients());
+  }
+
+  function dismissGoodbye() {
+    if (goodbyeTimer) {
+      clearTimeout(goodbyeTimer);
+      goodbyeTimer = null;
+    }
+    goodbyeOverlay.classList.add('hidden');
+    showWelcomeOnly();
+  }
+
+  function showWelcomeOnly() {
+    welcomeOverlay.classList.remove('hidden');
+    loginOverlay.classList.add('hidden');
+    signupOverlay.classList.add('hidden');
+  }
+
+  function showLoginScreen() {
+    welcomeOverlay.classList.add('hidden');
+    signupOverlay.classList.add('hidden');
+    loginOverlay.classList.remove('hidden');
+  }
+
+  function showSignupScreen() {
+    welcomeOverlay.classList.add('hidden');
+    loginOverlay.classList.add('hidden');
+    signupOverlay.classList.remove('hidden');
+  }
+
+  function getSession() {
+    try {
+      const u = sessionStorage.getItem(SESSION_KEY);
+      return u ? getAllPatients().find(p => p.user === u) : null;
+    } catch (e) { return null; }
+  }
+
+  function setSession(user) {
+    sessionStorage.setItem(SESSION_KEY, user.user);
+  }
+
+  function clearSession() {
+    sessionStorage.removeItem(SESSION_KEY);
+  }
+
+  function touchSessionVitals(patch) {
+    try {
+      const cur = JSON.parse(sessionStorage.getItem(SESSION_VITALS_KEY) || '{}');
+      Object.assign(cur, patch);
+      sessionStorage.setItem(SESSION_VITALS_KEY, JSON.stringify(cur));
+    } catch (e) {}
+  }
+
+  function saveVisitRecord(username, record) {
+    try {
+      const all = JSON.parse(localStorage.getItem(VISIT_HISTORY_KEY) || '{}');
+      if (!all[username]) all[username] = [];
+      all[username].push(record);
+      if (all[username].length > 20) all[username] = all[username].slice(-20);
+      localStorage.setItem(VISIT_HISTORY_KEY, JSON.stringify(all));
+    } catch (e) {}
+  }
+
+  function getLastVisit(username) {
+    try {
+      const all = JSON.parse(localStorage.getItem(VISIT_HISTORY_KEY) || '{}');
+      const arr = all[username] || [];
+      return arr.length ? arr[arr.length - 1] : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function formatLastVisitHtml(visit) {
+    if (!visit) {
+      return `
+      <h3>Last kiosk check-in</h3>
+      <div class="card">
+        <p class="muted" style="margin:0;">No previous session saved yet. Use vitals during a visit, then log out — your readings will show here next time.</p>
+      </div>`;
+    }
+    const t = visit.endedAt || visit.startedAt;
+    const d = t ? new Date(t) : null;
+    const when = d && !isNaN(d.getTime()) ? d.toLocaleString() : '—';
+    const v = visit.vitals || {};
+    const rhythm = v.rhythmIrregular === true ? 'Irregular pattern suggested' : v.rhythmIrregular === false ? 'Regular rhythm' : '—';
+    const chol = v.totalChol != null && v.ldl != null ? `Total ${v.totalChol} mg/dL · LDL ${v.ldl} mg/dL` : '—';
+    return `
+      <h3>Last kiosk check-in</h3>
+      <div class="card">
+        <p class="muted" style="margin:0 0 12px;font-size:12px;"><strong style="color:var(--text);">Ended</strong> ${when}</p>
+        <p style="margin:0;font-size:13px;line-height:1.65;color:#bfdbfe;">
+          <strong style="color:var(--text);">Blood pressure</strong> ${v.sys != null ? v.sys + '/' + v.dia + ' mmHg' : '—'}<br>
+          <strong style="color:var(--text);">Heart rate</strong> ${v.hr != null ? v.hr + ' bpm' : '—'}<br>
+          <strong style="color:var(--text);">BMI</strong> ${v.bmi != null ? Number(v.bmi).toFixed(1) + ' kg/m²' : '—'}<br>
+          <strong style="color:var(--text);">SpO₂</strong> ${v.spo2 != null ? v.spo2 + ' %' : '—'}<br>
+          <strong style="color:var(--text);">Heart rhythm</strong> ${rhythm}<br>
+          <strong style="color:var(--text);">Glucose (est.)</strong> ${v.glucose != null ? v.glucose + ' mg/dL' : '—'}<br>
+          <strong style="color:var(--text);">Cholesterol (est.)</strong> ${chol}
+        </p>
+      </div>`;
+  }
+
+  function bmiKgM2(kg, cm) {
+    const m = cm / 100;
+    return kg / (m * m);
+  }
+
+  function formatHeightImperial(cm) {
+    const totalIn = Math.round(cm / 2.54);
+    const ft = Math.floor(totalIn / 12);
+    const inch = totalIn - ft * 12;
+    return `${ft}'${inch}"`;
+  }
+
+  function formatWeightLb(kg) {
+    return Math.round(kg * 2.2046226218);
+  }
+
+  function bmiCategory(b) {
+    if (b < 18.5) return { label: 'Underweight', cls: 'warn', advice: 'Ask your clinician about nutrition; rule out underlying causes if unintended weight loss.' };
+    if (b < 25) return { label: 'Normal range', cls: 'ok', advice: 'Keep balanced meals and regular activity you already enjoy.' };
+    if (b < 30) return { label: 'Overweight', cls: 'warn', advice: 'Aim for gradual weight change with dietitian or clinician support; track waist and BP.' };
+    return { label: 'Obesity', cls: 'bad', advice: 'Schedule a visit to discuss weight, sleep apnea risk, glucose, and lipids; set small weekly goals.' };
+  }
+
+  function bpAdvice(sys, dia) {
+    if (sys >= 180 || dia >= 120) {
+      return { cls: 'bad', text: 'Hypertensive crisis range', do: 'Seek urgent care or ER now if you have chest pain, neuro symptoms, or feel severely unwell. Otherwise call your doctor today.' };
+    }
+    if (sys >= 140 || dia >= 90) {
+      return { cls: 'bad', text: 'High (Stage 2)', do: 'Book a clinic visit within days; limit salt; measure BP at home morning and evening; bring readings to your visit.' };
+    }
+    if (sys >= 130 || dia >= 80) {
+      return { cls: 'warn', text: 'Elevated / Stage 1', do: 'Follow up with your clinician; walk daily; reduce alcohol and sodium; recheck in 1–2 weeks if advised.' };
+    }
+    return { cls: 'ok', text: 'In a common target range for many adults', do: 'Keep current habits; continue annual checks unless your doctor gave different targets.' };
+  }
+
+  function hrAdvice(bpm) {
+    if (bpm < 50) return { cls: 'warn', text: 'Bradycardia', do: 'If dizzy or faint, seek urgent care. If on rate-lowering meds, ask your prescriber before changing anything.' };
+    if (bpm > 100) return { cls: 'warn', text: 'Tachycardia', do: 'Rest 5 minutes and recheck; hydrate; if persistent with chest pain or shortness of breath, seek care today.' };
+    return { cls: 'ok', text: 'Typical resting range (adults)', do: 'Stay active; manage stress and caffeine; tell your clinician about palpitations or exercise intolerance.' };
+  }
+
+  function spo2Advice(pct) {
+    if (pct < 90) return { cls: 'bad', text: 'Low oxygen', do: 'Seek emergency care if breathing is hard, lips turn blue, or you feel confused.' };
+    if (pct < 95) return { cls: 'warn', text: 'Borderline', do: 'Sit upright, breathe slowly, recheck on a warm finger; call your doctor same day if symptoms or chronic lung/heart disease.' };
+    return { cls: 'ok', text: 'Usually adequate at rest', do: 'If you have lung disease, follow your oxygen plan; still report new shortness of breath.' };
+  }
+
+  function rhythmAdvice(irregular) {
+    if (irregular) {
+      return { cls: 'warn', text: 'Possible irregular rhythm', do: 'Arrange ECG / clinician review; avoid excess caffeine and alcohol until evaluated; seek ER for chest pain, syncope, or fast uncontrolled rate.' };
+    }
+    return { cls: 'ok', text: 'Regular rhythm (kiosk estimate)', do: 'If you feel skipped beats or racing, keep a symptom log and show your clinician—even if this screen looks normal.' };
+  }
+
+  function glucoseAdvice(mgdl, fasting) {
+    if (mgdl < 70) return { cls: 'bad', text: 'Low (hypoglycemia risk)', do: 'If shaky, sweaty, or confused, take fast carbs and recheck; get urgent help if not improving.' };
+    if (fasting) {
+      if (mgdl >= 126) return { cls: 'bad', text: 'High fasting (screening)', do: 'Book labs (A1c, fasting glucose) with your clinician; this kiosk estimate is not diagnostic.' };
+      if (mgdl >= 100) return { cls: 'warn', text: 'Impaired fasting', do: 'Discuss prediabetes screening and lifestyle plan with your doctor.' };
+      return { cls: 'ok', text: 'Typical fasting screening range', do: 'Maintain balanced meals; limit sugary drinks; repeat per your care plan.' };
+    }
+    if (mgdl >= 200) return { cls: 'warn', text: 'High random (screening)', do: 'Follow up for formal testing if symptoms (thirst, urination, weight loss) or risk factors.' };
+    return { cls: 'ok', text: 'Common random range', do: 'Use only with lab confirmation for diabetes decisions.' };
+  }
+
+  function cholAdvice(total, ldl) {
+    if (ldl >= 160 || total >= 240) {
+      return { cls: 'bad', text: 'High (screening)', do: 'Schedule fasting lipid panel; discuss diet (fiber, saturated fat), activity, and meds if indicated.' };
+    }
+    if (ldl >= 130 || total >= 200) {
+      return { cls: 'warn', text: 'Borderline / elevated', do: 'Recheck with fasting labs; heart-healthy eating pattern; walking 150+ min/week.' };
+    }
+    return { cls: 'ok', text: 'Favorable for many adults', do: 'Keep annual lipid checks if your doctor recommends; family history still matters.' };
+  }
+
+  /** Deterministic pseudo-random vitals per user for repeatable demos */
+  function seedHash(str) {
+    let h = 0;
+    for (let i = 0; i < str.length; i++) h = Math.imul(31, h) + str.charCodeAt(i) | 0;
+    return Math.abs(h);
+  }
+
+  function seededVitals(user) {
+    const h = seedHash(user.user);
+    const sys = 108 + (h % 45);
+    const dia = 68 + (h % 22);
+    const hr = 58 + (h % 38);
+    const spo2 = 94 + (h % 6);
+    const irregular = (h % 17) === 0;
+    const fasting = true;
+    const glucose = 82 + (h % 45);
+    const totalChol = 165 + (h % 85);
+    const ldl = 90 + (h % 70);
+    return { sys, dia, hr, spo2, irregular, fasting, glucose, totalChol, ldl };
+  }
+
+  function renderDashboard(p) {
+    screen.innerHTML = `
+      <h2>Hi, ${p.name.split(' ')[0]}</h2>
+      <div class="pill-line"><strong>${p.mrn}</strong> · Age ${p.age}</div>
+      <div class="btn-stack">
+        <button type="button" class="btn-cyan" id="btnProfile">My information</button>
+        <button type="button" class="btn-amber" id="btnVitals">Vitals &amp; screening</button>
+        <button type="button" class="secondary" id="btnLogout">Log out</button>
+      </div>
+    `;
+    document.getElementById('btnProfile').onclick = () => renderProfile(p);
+    document.getElementById('btnVitals').onclick = () => renderVitalsMenu(p);
+    document.getElementById('btnLogout').onclick = requestLogout;
+  }
+
+  function renderProfile(p) {
+    const bmi = bmiKgM2(p.weightKg, p.heightCm);
+    const bc = bmiCategory(bmi);
+    const lastVisit = getLastVisit(p.user);
+    screen.innerHTML = `
+      <h2>Your file</h2>
+      ${formatLastVisitHtml(lastVisit)}
+      <h3>Identity</h3>
+      <div class="card">
+        <p style="margin:0 0 10px;font-size:1.1rem;font-weight:700;">${p.name}</p>
+        <p class="muted" style="margin:0 0 14px;">${p.mrn}</p>
+        <p style="margin:0;color:var(--text-muted);font-size:13px;line-height:1.6;">
+          <strong style="color:var(--text);">Age</strong> ${p.age}<br>
+          <strong style="color:var(--text);">Phone</strong> ${p.phone}<br>
+          <strong style="color:var(--text);">Height</strong> ${formatHeightImperial(p.heightCm)} · <strong style="color:var(--text);">Weight</strong> ${formatWeightLb(p.weightKg)} lb
+        </p>
+      </div>
+      <h3>BMI snapshot</h3>
+      <div class="card">
+        <p style="margin:0;"><span class="value-big">${bmi.toFixed(1)}</span> <span class="muted">kg/m²</span></p>
+        <span class="tag ${bc.cls}">${bc.label}</span>
+        <p style="margin:12px 0 0;font-size:13px;"><strong style="color:var(--accent);">Next step</strong> — ${bc.advice}</p>
+      </div>
+      <h3>Clinical notes</h3>
+      <div class="card">
+        <p style="margin:0 0 8px;font-size:13px;"><strong style="color:var(--text);">Allergies</strong> ${p.allergies}</p>
+        <p style="margin:0;font-size:13px;"><strong style="color:var(--text);">Visit</strong> ${p.notes}</p>
+      </div>
+      <button type="button" class="secondary" id="btnBackDash">Back</button>
+    `;
+    document.getElementById('btnBackDash').onclick = () => renderDashboard(p);
+  }
+
+  function renderScanning(p, title, onDone) {
+    screen.innerHTML = `
+      <h2>${title}</h2>
+      <div class="scan-wrap">
+        <div class="scan-ring" aria-hidden="true"></div>
+        <p class="scan-status">Scanning…</p>
+        <p class="muted">Please keep still while sensors read.</p>
+        <div class="scan-bar"><div class="scan-bar-fill"></div></div>
+      </div>
+    `;
+    setTimeout(onDone, SCAN_MS);
+  }
+
+  function renderVitalsMenu(p) {
+    screen.innerHTML = `
+      <h2>Vitals lab</h2>
+      <h3>Choose a reading</h3>
+      <p class="muted">Each check runs a ~5s sensor sweep, then shows guidance. Demo only.</p>
+      <div class="btn-stack">
+        <button type="button" class="btn-bp" id="vBp">Blood pressure</button>
+        <button type="button" class="btn-hr" id="vHr">Heart rate</button>
+        <button type="button" class="btn-bmi" id="vBmi">BMI</button>
+        <button type="button" class="btn-spo2" id="vSpo2">Oxygen (SpO₂)</button>
+        <button type="button" class="btn-rhythm" id="vRhythm">Heart rhythm</button>
+        <button type="button" class="btn-glu" id="vGlu">Glucose (estimate)</button>
+        <button type="button" class="btn-chol" id="vChol">Cholesterol (estimate)</button>
+        <button type="button" class="secondary" id="btnBackDash2">Back</button>
+      </div>
+    `;
+    const v = seededVitals(p);
+    document.getElementById('vBp').onclick = () => renderScanning(p, 'Blood pressure', () => renderBP(p, v));
+    document.getElementById('vHr').onclick = () => renderScanning(p, 'Heart rate', () => renderHR(p, v));
+    document.getElementById('vBmi').onclick = () => renderScanning(p, 'BMI', () => renderBMIScreen(p));
+    document.getElementById('vSpo2').onclick = () => renderScanning(p, 'Oxygen (SpO₂)', () => renderSpO2(p, v));
+    document.getElementById('vRhythm').onclick = () => renderScanning(p, 'Heart rhythm', () => renderRhythm(p, v));
+    document.getElementById('vGlu').onclick = () => renderScanning(p, 'Glucose (estimate)', () => renderGlucose(p, v));
+    document.getElementById('vChol').onclick = () => renderScanning(p, 'Cholesterol (estimate)', () => renderChol(p, v));
+    document.getElementById('btnBackDash2').onclick = () => renderDashboard(p);
+  }
+
+  function renderBP(p, v) {
+    touchSessionVitals({ sys: v.sys, dia: v.dia });
+    const a = bpAdvice(v.sys, v.dia);
+    screen.innerHTML = `
+      <h2>Blood pressure</h2>
+      <p class="muted">Simulated cuff reading for demo.</p>
+      <div class="card">
+        <p><span class="value-big">${v.sys}/${v.dia}</span> mmHg</p>
+        <span class="tag ${a.cls}">${a.text}</span>
+        <p><strong>What to do:</strong> ${a.do}</p>
+      </div>
+      <button type="button" class="secondary" id="bk">Back</button>
+    `;
+    document.getElementById('bk').onclick = () => renderVitalsMenu(p);
+  }
+
+  function renderHR(p, v) {
+    touchSessionVitals({ hr: v.hr });
+    const a = hrAdvice(v.hr);
+    screen.innerHTML = `
+      <h2>Heart rate</h2>
+      <p class="muted">Simulated pulse at rest.</p>
+      <div class="card">
+        <p><span class="value-big">${v.hr}</span> bpm</p>
+        <span class="tag ${a.cls}">${a.text}</span>
+        <p><strong>What to do:</strong> ${a.do}</p>
+      </div>
+      <button type="button" class="secondary" id="bk">Back</button>
+    `;
+    document.getElementById('bk').onclick = () => renderVitalsMenu(p);
+  }
+
+  function renderBMIScreen(p) {
+    const bmi = bmiKgM2(p.weightKg, p.heightCm);
+    touchSessionVitals({ bmi });
+    const bc = bmiCategory(bmi);
+    screen.innerHTML = `
+      <h2>BMI</h2>
+      <p class="muted">From height and weight on file.</p>
+      <div class="card">
+        <p><span class="value-big">${bmi.toFixed(1)}</span> kg/m²</p>
+        <span class="tag ${bc.cls}">${bc.label}</span>
+        <p><strong>What to do:</strong> ${bc.advice}</p>
+      </div>
+      <button type="button" class="secondary" id="bk">Back</button>
+    `;
+    document.getElementById('bk').onclick = () => renderVitalsMenu(p);
+  }
+
+  function renderSpO2(p, v) {
+    touchSessionVitals({ spo2: v.spo2 });
+    const a = spo2Advice(v.spo2);
+    screen.innerHTML = `
+      <h2>Oxygen saturation</h2>
+      <p class="muted">Simulated finger clip (SpO₂).</p>
+      <div class="card">
+        <p><span class="value-big">${v.spo2}</span> %</p>
+        <span class="tag ${a.cls}">${a.text}</span>
+        <p><strong>What to do:</strong> ${a.do}</p>
+      </div>
+      <button type="button" class="secondary" id="bk">Back</button>
+    `;
+    document.getElementById('bk').onclick = () => renderVitalsMenu(p);
+  }
+
+  function renderRhythm(p, v) {
+    touchSessionVitals({ rhythmIrregular: v.irregular });
+    const a = rhythmAdvice(v.irregular);
+    screen.innerHTML = `
+      <h2>Heart rhythm</h2>
+      <p class="muted">Kiosk estimate — not a full ECG.</p>
+      <div class="card">
+        <p><strong>Reading:</strong> ${v.irregular ? 'Irregular pattern suggested' : 'Regular rhythm'}</p>
+        <span class="tag ${a.cls}">${a.text}</span>
+        <p><strong>What to do:</strong> ${a.do}</p>
+      </div>
+      <button type="button" class="secondary" id="bk">Back</button>
+    `;
+    document.getElementById('bk').onclick = () => renderVitalsMenu(p);
+  }
+
+  function renderGlucose(p, v) {
+    touchSessionVitals({ glucose: v.glucose });
+    const a = glucoseAdvice(v.glucose, v.fasting);
+    screen.innerHTML = `
+      <h2>Glucose (estimate)</h2>
+      <p class="muted">Screening-style estimate — confirm with lab tests.</p>
+      <div class="card">
+        <p><span class="value-big">${v.glucose}</span> mg/dL <span class="muted">(fasting scenario)</span></p>
+        <span class="tag ${a.cls}">${a.text}</span>
+        <p><strong>What to do:</strong> ${a.do}</p>
+      </div>
+      <button type="button" class="secondary" id="bk">Back</button>
+    `;
+    document.getElementById('bk').onclick = () => renderVitalsMenu(p);
+  }
+
+  function renderChol(p, v) {
+    touchSessionVitals({ totalChol: v.totalChol, ldl: v.ldl });
+    const a = cholAdvice(v.totalChol, v.ldl);
+    screen.innerHTML = `
+      <h2>Cholesterol (estimate)</h2>
+      <p class="muted">Non-fasting estimate for demo — use fasting lipid panel for decisions.</p>
+      <div class="card">
+        <p>Total: <span class="value-big">${v.totalChol}</span> mg/dL</p>
+        <p>LDL (est.): <strong>${v.ldl}</strong> mg/dL</p>
+        <span class="tag ${a.cls}">${a.text}</span>
+        <p><strong>What to do:</strong> ${a.do}</p>
+      </div>
+      <button type="button" class="secondary" id="bk">Back</button>
+    `;
+    document.getElementById('bk').onclick = () => renderVitalsMenu(p);
+  }
+
+  function resetMentalHealthForm() {
+    document.getElementById('mh_mood').value = '';
+    document.getElementById('mh_rested').value = '';
+    document.getElementById('mh_fuel').value = '';
+    document.getElementById('mh_onmind').value = '';
+    document.getElementById('mh_kind').value = '';
+    document.getElementById('mhErr').textContent = '';
+  }
+
+  function requestLogout() {
+    resetMentalHealthForm();
+    mentalHealthOverlay.classList.remove('hidden');
+  }
+
+  function performLogout(wellness) {
+    const p = getSession();
+    if (p) {
+      let vitals = {};
+      try {
+        vitals = JSON.parse(sessionStorage.getItem(SESSION_VITALS_KEY) || '{}');
+      } catch (e) {}
+      const started = parseInt(sessionStorage.getItem(SESSION_START_KEY) || String(Date.now()), 10);
+      const record = {
+        startedAt: started,
+        endedAt: Date.now(),
+        vitals
+      };
+      if (wellness) record.wellnessCheck = wellness;
+      saveVisitRecord(p.user, record);
+    }
+    sessionStorage.removeItem(SESSION_VITALS_KEY);
+    sessionStorage.removeItem(SESSION_START_KEY);
+    clearSession();
+    loginErr.textContent = '';
+    document.getElementById('loginUser').value = '';
+    document.getElementById('loginPass').value = '';
+    loginOverlay.classList.add('hidden');
+    mentalHealthOverlay.classList.add('hidden');
+    goodbyeOverlay.classList.remove('hidden');
+    if (goodbyeTimer) clearTimeout(goodbyeTimer);
+    goodbyeTimer = setTimeout(dismissGoodbye, 3500);
+    document.getElementById('btnGoodbyeOk').onclick = () => dismissGoodbye();
+  }
+
+  function tryLogin() {
+    loginErr.style.color = '';
+    const u = document.getElementById('loginUser').value.trim().toLowerCase();
+    const pass = document.getElementById('loginPass').value;
+    const p = getAllPatients().find(x => x.user === u && x.pass === pass);
+    if (!p) {
+      loginErr.textContent = 'Unknown username or wrong password.';
+      return;
+    }
+    setSession(p);
+    sessionStorage.removeItem(SESSION_VITALS_KEY);
+    sessionStorage.setItem(SESSION_START_KEY, String(Date.now()));
+    loginErr.textContent = '';
+    welcomeOverlay.classList.add('hidden');
+    loginOverlay.classList.add('hidden');
+    signupOverlay.classList.add('hidden');
+    renderDashboard(p);
+  }
+
+  function trySignup() {
+    const name = document.getElementById('signupName').value.trim();
+    const user = document.getElementById('signupUser').value.trim().toLowerCase();
+    const pass = document.getElementById('signupPass').value;
+    const age = parseInt(document.getElementById('signupAge').value, 10);
+    signupErr.textContent = '';
+    if (!name || !user || !pass) {
+      signupErr.textContent = 'Please fill in name, username, and password.';
+      return;
+    }
+    if (!/^[a-z0-9._-]{3,24}$/.test(user)) {
+      signupErr.textContent = 'Username: 3–24 chars, letters, numbers, . _ -';
+      return;
+    }
+    if (pass.length < 6) {
+      signupErr.textContent = 'Password must be at least 6 characters.';
+      return;
+    }
+    if (!Number.isFinite(age) || age < 1 || age > 120) {
+      signupErr.textContent = 'Please enter a valid age (1–120).';
+      return;
+    }
+    const all = getAllPatients();
+    if (all.some(x => x.user === user)) {
+      signupErr.textContent = 'That username is already taken.';
+      return;
+    }
+    const reg = getRegisteredPatients();
+    const newbie = {
+      user,
+      pass,
+      name,
+      age,
+      heightCm: 170,
+      weightKg: 70,
+      mrn: 'MRN-' + Date.now().toString(36).toUpperCase(),
+      phone: '—',
+      allergies: 'None',
+      notes: 'Self-registration'
+    };
+    reg.push(newbie);
+    localStorage.setItem(REG_KEY, JSON.stringify(reg));
+    document.getElementById('signupName').value = '';
+    document.getElementById('signupUser').value = '';
+    document.getElementById('signupPass').value = '';
+    document.getElementById('signupAge').value = '';
+    document.getElementById('loginUser').value = user;
+    document.getElementById('loginPass').value = '';
+    loginErr.textContent = '';
+    showLoginScreen();
+    loginErr.textContent = 'Account created. You can log in now.';
+    loginErr.style.color = '#86efac';
+  }
+
+  function init() {
+    document.getElementById('btnWelcomeLogin').onclick = () => {
+      loginErr.textContent = '';
+      loginErr.style.color = '';
+      showLoginScreen();
+    };
+    document.getElementById('btnWelcomeSignup').onclick = () => {
+      signupErr.textContent = '';
+      showSignupScreen();
+    };
+    document.getElementById('btnLoginBack').onclick = () => showWelcomeOnly();
+    document.getElementById('btnSignupBack').onclick = () => {
+      signupErr.textContent = '';
+      showWelcomeOnly();
+    };
+    document.getElementById('btnSignupSubmit').onclick = trySignup;
+
+    document.getElementById('btnLogin').onclick = tryLogin;
+    document.getElementById('loginPass').addEventListener('keydown', e => {
+      if (e.key === 'Enter') tryLogin();
+    });
+    document.getElementById('loginUser').addEventListener('keydown', e => {
+      if (e.key === 'Enter') tryLogin();
+    });
+    document.getElementById('signupAge').addEventListener('keydown', e => {
+      if (e.key === 'Enter') trySignup();
+    });
+
+    document.getElementById('btnMhCancel').onclick = () => {
+      mentalHealthOverlay.classList.add('hidden');
+    };
+    document.getElementById('btnMhFinish').onclick = () => {
+      const mood = document.getElementById('mh_mood').value;
+      const rested = document.getElementById('mh_rested').value;
+      const fuel = document.getElementById('mh_fuel').value;
+      const mhErr = document.getElementById('mhErr');
+      if (!mood || !rested || !fuel) {
+        mhErr.textContent = 'Please answer the first three questions — it only takes a moment.';
+        return;
+      }
+      mhErr.textContent = '';
+      performLogout({
+        mood,
+        rested,
+        fuel,
+        onMind: document.getElementById('mh_onmind').value.trim(),
+        kindThing: document.getElementById('mh_kind').value.trim()
+      });
+    };
+
+    const s = getSession();
+    if (s) {
+      if (!sessionStorage.getItem(SESSION_START_KEY)) {
+        sessionStorage.setItem(SESSION_START_KEY, String(Date.now()));
+      }
+      welcomeOverlay.classList.add('hidden');
+      loginOverlay.classList.add('hidden');
+      signupOverlay.classList.add('hidden');
+      renderDashboard(s);
+    } else {
+      welcomeOverlay.classList.remove('hidden');
+      loginOverlay.classList.add('hidden');
+      signupOverlay.classList.add('hidden');
+    }
+  }
+
+  init();
+})();
+</script>
+
+</body>
+</html>
