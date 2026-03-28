@@ -1,0 +1,20 @@
+# MedConnect — Expo web (static export) behind nginx.
+# 1) Build & push a public image (linux/amd64), e.g.:
+#    docker build --platform=linux/amd64 -t docker.io/YOUR_USER/medconnect-web:v1 .
+#    docker push docker.io/YOUR_USER/medconnect-web:v1
+# 2) Replace the image line below.
+# 3) Deploy:
+#    nexlayer deploy
+#    # or: curl -X POST "https://app.nexlayer.io/startUserDeployment/medconnect-web" \
+#    #        -H "Content-Type: text/x-yaml" --data-binary @nexlayer.yaml
+#
+# Docs: https://docs.nexlayer.com · https://github.com/Nexlayer/nexlayer-deployment-yaml
+
+application:
+  name: medconnect-web
+  pods:
+    - name: web
+      path: /
+      image: "docker.io/YOUR_DOCKERHUB_USER/medconnect-web:v1"
+      servicePorts:
+        - 80
